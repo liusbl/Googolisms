@@ -20,10 +20,13 @@ data class Tree(
     val value: String,
     val roots: List<Tree>
 ) {
-//    fun getFirstLeaf(): Tree {
-//
-//    }
-//
+    fun getFirstLeaf(): Tree? {
+        fun getFirst(roots: List<Tree>): Tree? {
+            return roots.find { it.roots.isEmpty() }
+        }
+        return getFirst(roots)
+    }
+
 //    fun iterateAndUpdate(update: () -> Tree): Tree {
 //
 //    }
@@ -93,22 +96,27 @@ data class Tree(
 fun main() {
     val tree0 = Tree.parse("1 -> 2")
     println(tree0)
+    println(tree0.getFirstLeaf())
     println(tree0.graphString())
     println()
     val tree1 = Tree.parse("1 -> (2 -> 3) -> 4")
     println(tree1)
+    println(tree1.getFirstLeaf())
     println(tree1.graphString())
     println()
     val tree2 = Tree.parse("1 -> ((2 -> 3) -> 4) -> 5")
     println(tree2)
+    println(tree2.getFirstLeaf())
     println(tree2.graphString())
     println()
     val tree3 = Tree.parse("1 -> ((2 -> 3) -> 4) -> (5 -> 6)")
     println(tree3)
+    println(tree3.getFirstLeaf())
     println(tree3.graphString())
     println()
     val tree4 = Tree.parse("1 -> ((2 -> 3) -> (4 -> (5 -> 6))) -> (7 -> 8 -> 9)")
     println(tree4)
+    println(tree4.getFirstLeaf())
     println(tree4.graphString())
     println()
 }
