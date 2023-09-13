@@ -5,7 +5,6 @@ import operate
 
 fun Tree.graphString(): String {
     return mapRoots(this, 0, roots)
-//        return "value"
 }
 
 private fun mapRoots(tree: Tree, depth: Int, roots: List<Tree>): String =
@@ -15,24 +14,27 @@ private fun mapRoots(tree: Tree, depth: Int, roots: List<Tree>): String =
         .joinToString("\n")
 
 
+fun Tree.find(predicate: (Tree) -> Boolean): Tree? {
+    roots.forEach { tree ->
+        return if (predicate(tree)) {
+            tree
+        } else {
+            tree.find(predicate)
+        }
+    }
+    return this
+}
+
 data class Tree(
     val index: Int,
     val value: String,
     val roots: List<Tree>
 ) {
-    fun getFirstLeaf(): Tree {
-        fun getFirst(roots: List<Tree>): Tree? {
-            roots.forEach { tree ->
-                return if (tree.roots.isEmpty()) {
-                    tree
-                } else {
-                    getFirst(tree.roots)
-                }
-            }
-            return this
-        }
-        return getFirst(roots) ?: this
-    }
+    fun getFirstLeaf(): Tree = find { it.roots.isEmpty() } ?: this
+
+//    fun updateOne(index: Int, newTree: Tree): Tree {
+//
+//    }
 
     companion object {
         fun parse(input: String): Tree {
@@ -108,6 +110,6 @@ fun test(input: String) {
     val tree = Tree.parse(input)
     println(tree)
     println(tree.graphString())
-    println(tree.getFirstLeaf())
+    println("First leaf: ${tree.getFirstLeaf().graphString()}")
     println()
 }
