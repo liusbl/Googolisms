@@ -22,17 +22,21 @@ private fun mapRoots(tree: Tree, depth: Int, roots: List<Tree>): String =
 
 
 fun Tree.find(predicate: (Tree) -> Boolean): Tree? {
-    roots.forEach { tree ->
-        return if (predicate(tree)) {
-            tree
-        } else {
-            tree.find(predicate)
+    if (predicate(this)) {
+        return this
+    } else {
+        roots.forEach { tree ->
+            return if (predicate(tree)) {
+                tree
+            } else {
+                tree.find(predicate)
+            }
         }
     }
     return this
 }
 
-fun Tree.getFirstLeaf(): Tree = find { it.roots.isEmpty() } ?: this
+fun Tree.getFirstLeaf(): Tree = find { it.isLeaf } ?: this
 
 // TODO does not work properly.
 fun Tree.set(index: Int, newTree: Tree): Tree {
@@ -40,20 +44,10 @@ fun Tree.set(index: Int, newTree: Tree): Tree {
     if (this.index == index) {
         list.add(Tree(index, newTree.value, newTree.isLeaf, newTree.roots))
     } else {
-        roots.forEach { root ->
-            if (root.index == index) {
-                list.add(Tree(root.index, newTree.value, newTree.isLeaf, newTree.roots))
-            } else {
-                list.add(root.set(index, newTree))
-            }
-        }
+
     }
-    return Tree(this.index, value, this.isLeaf, list)
+    return find { it.roots.isEmpty() } ?: this
 }
-
-//fun List<Tree>.createParentValue(): String {
-
-//}
 
 // TODO adding parentTree to this could help solve issues with root replacement
 data class Tree(
@@ -147,7 +141,5 @@ fun test(input: String) {
     println(tree.graphString())
     val firstLeaf = tree.getFirstLeaf()
     println("First leaf: ${firstLeaf.graphString()}")
-//    val treeWithRemovedLeaf = tree.set(firstLeaf.index, Tree.parse("X"))
-//    println("Removed leaf: \n${treeWithRemovedLeaf.graphString()}")
     println()
 }
