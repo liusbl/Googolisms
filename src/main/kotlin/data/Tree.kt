@@ -51,8 +51,12 @@ fun Tree.set(newTreeNumber: Int, newValue: String): Tree {
         val parentIndex = root.parentIndex!!
         val anyRootContainsNumber: (Tree) -> Boolean = { it.roots.any { it.number == newTreeNumber } }
         val parentTree = find(anyRootContainsNumber)!!
-        val newParentValue =
+        val newParentValue = if (newValue.contains("->")) {
+            // TODO NOT SURE ABOUT THIS CHECK THIS AGAIN
+            parentTree.value.replaceRange(parentIndex.startIndex, parentIndex.endIndex, newValue)
+        } else {
             parentTree.value.replaceRange(parentIndex.startIndex - 1, parentIndex.endIndex + 1, newValue)
+        }
         val updatedTree = this.updateTree {
             if (anyRootContainsNumber(it)) {
                 it.copy(value = newParentValue)
