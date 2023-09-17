@@ -1,14 +1,21 @@
 package data
 
-import operate
-
 
 fun Tree.graphString(): String {
     return mapRoots(this, 0, roots)
 }
 
+fun Tree.updateTree(onRoot: (Tree) -> Tree): Tree {
+    val newTree = onRoot(this)
+    val newRoots = roots.map { root ->
+        onRoot(root)
+        root.updateTree(onRoot)
+    }
+    return Tree(newTree.index, newTree.value, newTree.isLeaf, newRoots)
+}
+
 private fun mapRoots(tree: Tree, depth: Int, roots: List<Tree>): String =
-    (listOf("  ".repeat(depth) + "${tree.value} [index:${tree.index}]") + roots.map { root ->
+    (listOf("  ".repeat(depth) + "${tree.value} [index:${tree.index}, isLeaf:${tree.isLeaf}]") + roots.map { root ->
         mapRoots(root, depth + 1, root.roots)
     }.filter { it.isNotBlank() })
         .joinToString("\n")
@@ -31,17 +38,17 @@ fun Tree.getFirstLeaf(): Tree = find { it.roots.isEmpty() } ?: this
 fun Tree.set(index: Int, newTree: Tree): Tree {
     val list = mutableListOf<Tree>()
     if (this.index == index) {
-        list.add(Tree(index, newTree.value, newTree.roots))
+        list.add(Tree(index, newTree.value, newTree.isLeaf, newTree.roots))
     } else {
         roots.forEach { root ->
             if (root.index == index) {
-                list.add(Tree(root.index, newTree.value, newTree.roots))
+                list.add(Tree(root.index, newTree.value, newTree.isLeaf, newTree.roots))
             } else {
                 list.add(root.set(index, newTree))
             }
         }
     }
-    return Tree(this.index, value, list)
+    return Tree(this.index, value, this.isLeaf, list)
 }
 
 //fun List<Tree>.createParentValue(): String {
@@ -52,6 +59,7 @@ fun Tree.set(index: Int, newTree: Tree): Tree {
 data class Tree(
     val index: Int,
     val value: String,
+    val isLeaf: Boolean,
     val roots: List<Tree>
 ) {
     companion object {
@@ -89,9 +97,10 @@ data class Tree(
                                     treeList.add(
                                         simplify(
                                             Tree(
-                                                ++additionalIndex,
-                                                substring,
-                                                emptyList()
+                                                index = ++additionalIndex,
+                                                value = substring,
+                                                isLeaf = false,
+                                                roots = emptyList()
                                             )
                                         )
                                     )
@@ -102,13 +111,21 @@ data class Tree(
                         }
                     }
                 }
-                return Tree(tree.index, tree.value, treeList)
+                return Tree(
+                    index = tree.index,
+                    value = tree.value,
+                    isLeaf = false,
+                    roots = treeList
+                ).let { innerTree ->
+                    innerTree.updateTree { it.copy(isLeaf = it.roots.isEmpty()) }
+                }
             }
 
             return simplify(
                 Tree(
                     index = 0,
                     value = input,
+                    isLeaf = false,
                     roots = emptyList()
                 )
             )
