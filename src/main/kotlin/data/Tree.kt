@@ -28,31 +28,51 @@ private fun mapRoots(tree: Tree, depth: Int, roots: List<Tree>): String =
 
 
 fun Tree.find(predicate: (Tree) -> Boolean): Tree? {
-    if (predicate(this)) {
-        return this
-    } else {
-        roots.forEach { tree ->
-            return if (predicate(tree)) {
-                tree
-            } else {
-                tree.find(predicate)
-            }
-        }
+    val list = mutableListOf<Tree>()
+
+    fun thing(root: Tree) {
+        list.add(root)
+        root.roots.forEach { thing(it) }
     }
-    return this
+
+    thing(this)
+
+    return list.find { predicate(it) }
 }
 
 fun Tree.getFirstLeaf(): Tree = find { it.isLeaf } ?: this
 
 // TODO does not work properly.
-//fun Tree.set(index: Int, newTree: Tree): Tree {
-////    val list = mutableListOf<Tree>()
-////    if (this.index == index) {
-////        list.add(Tree(index, newTree.value, newTree.isLeaf, newTree.roots))
-////    } else {
-////
-////    }
-////    return find { it.roots.isEmpty() } ?: this
+fun Tree.set(newTreeNumber: Int, newValue: String): Tree {
+    val root = find { it.number == newTreeNumber }
+    if (root == null) {
+        System.err.println("whot")
+    } else {
+        val parentIndex = root.parentIndex!!
+        val anyRootContainsNumber: (Tree) -> Boolean = { it.roots.any { it.number == newTreeNumber } }
+        val parentTree = find(anyRootContainsNumber)!!
+        val newParentValue = parentTree.value.replaceRange(parentIndex.startIndex, parentIndex.endIndex, newValue)
+        val updatedTree = this.updateTree {
+            if (anyRootContainsNumber(it)) {
+                it.copy(value = newParentValue)
+            } else {
+                it
+            }
+        }
+        return updatedTree
+    }
+    return this
+}
+
+//    }
+// TODO parse the tree with the new value.
+//    val list = mutableListOf<Tree>()
+//    if (this.index == index) {
+//        list.add(Tree(index, newTree.value, newTree.isLeaf, newTree.roots))
+//    } else {
+//
+//    }
+//    return find { it.roots.isEmpty() } ?: this
 //}
 
 // TODO adding parentTree to this could help solve issues with root replacement
@@ -149,10 +169,10 @@ data class Tree(
 }
 
 fun main() {
-    test("1->2")
-    test("1->(2->3)->4")
-    test("1->((2->3)->4)->5")
-    test("1->((2->3)->4)->(5->6)")
+//    test("1->2")
+//    test("1->(2->3)->4")
+//    test("1->((2->3)->4)->5")
+//    test("1->((2->3)->4)->(5->6)")
     test("1->((2->3)->(4->(5->6)))->(7->8->9)")
 }
 
@@ -162,5 +182,6 @@ fun test(input: String) {
     println(tree.graphString())
     val firstLeaf = tree.getFirstLeaf()
     println("First leaf: ${firstLeaf.graphString()}")
+    println(tree.set(4, "X").graphString())
     println()
 }
