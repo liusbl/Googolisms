@@ -25,7 +25,19 @@ data class Chain(
                 val firstLeafNextIteration = firstLeafChain.next()
                 Chain(tree.set(firstLeaf.number, firstLeafNextIteration.tree.value))
             }
-            else -> Chain(Tree.parse(list.takeWhile { it != 1 }.joinToString("->")))
+
+            else -> {
+                if (list.contains(1)) {
+                    Chain(Tree.parse(list.takeWhile { it != 1 }.joinToString("->")))
+                } else {
+                    val lastTwoValueList = list.takeLast(2)
+                    val firstValueList = list.dropLast(2)
+
+                    val joinedFirstValueChain = firstValueList.joinToString("->")
+
+                    Chain(Tree.parse("$joinedFirstValueChain->($joinedFirstValueChain->${lastTwoValueList[0] - 1}->${lastTwoValueList[1]})->${lastTwoValueList[1] - 1}"))
+                }
+            }
         }
     }
 }
