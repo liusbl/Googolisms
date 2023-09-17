@@ -7,9 +7,9 @@ data class Chain(
 ) {
     val value: String = tree.value
 
-    private val numberList: List<Int>? =
+    private val numberList: List<Long>? =
         if (tree.roots.isEmpty()) {
-            tree.value.split("->").map { it.trim().toInt() }
+            tree.value.split("->").map { it.trim().toLong() }
         } else {
             null
         }
@@ -18,7 +18,13 @@ data class Chain(
         val list = numberList
         return when (list?.size) {
             0, 1 -> this
-            2 -> Chain((list[0].toDouble().pow(list[1])).toInt().toString())
+            2 -> {
+                val power = list[1]
+                if (power > Int.MAX_VALUE) {
+                    System.err.println("Warning: power $power exceeding Int range")
+                }
+                Chain((list[0].toDouble().pow(power.toInt())).toLong().toString())
+            }
             null -> {
                 val firstLeaf = tree.getFirstLeaf()
                 val firstLeafChain = Chain(firstLeaf)
@@ -28,7 +34,7 @@ data class Chain(
 
             else -> {
                 if (list.contains(1)) {
-                    Chain(list.takeWhile { it != 1 }.joinToString("->"))
+                    Chain(list.takeWhile { it != 1L }.joinToString("->"))
                 } else {
                     val last = list.takeLast(2)
                     val leftover = list.dropLast(2).joinToString("->")
