@@ -59,23 +59,15 @@ fun Tree.set(newTreeNumber: Int, newValue: String): Tree {
                 it
             }
         }
-        return updatedTree
+        if (parentTree.number == 0) {
+            return Tree.parse(updatedTree.value)
+        } else {
+            val newerNumber = parentTree.number
+            return updatedTree.set(newerNumber, newParentValue)
+        }
     }
-    return this
+    error("Should not happen")
 }
-
-//    }
-// TODO parse the tree with the new value.
-//    val list = mutableListOf<Tree>()
-//    if (this.index == index) {
-//        list.add(Tree(index, newTree.value, newTree.isLeaf, newTree.roots))
-//    } else {
-//
-//    }
-//    return find { it.roots.isEmpty() } ?: this
-//}
-
-// TODO adding parentTree to this could help solve issues with root replacement
 
 data class ParentIndex(
     val startIndex: Int,
@@ -182,6 +174,10 @@ fun test(input: String) {
     println(tree.graphString())
     val firstLeaf = tree.getFirstLeaf()
     println("First leaf: ${firstLeaf.graphString()}")
-    println(tree.set(4, "X").graphString())
+    val treeWithX = tree.set(4, "X")
+    println(treeWithX.graphString())
+    println()
+    val treeWithXY = treeWithX.set(2, "Y")
+    println(treeWithXY.graphString())
     println()
 }
