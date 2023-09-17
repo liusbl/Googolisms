@@ -5,6 +5,8 @@ import kotlin.math.pow
 data class Chain(
     val tree: Tree
 ) {
+    val value: String = tree.value
+
     private val numberList: List<Int>? =
         if (tree.roots.isEmpty()) {
             tree.value.split("->").map { it.trim().toInt() }
