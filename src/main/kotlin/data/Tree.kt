@@ -11,11 +11,11 @@ fun Tree.updateTree(onRoot: (Tree) -> Tree): Tree {
         onRoot(root)
         root.updateTree(onRoot)
     }
-    return Tree(newTree.index, newTree.value, newTree.isLeaf, newRoots)
+    return Tree(newTree.number, newTree.value, newTree.isLeaf, newRoots)
 }
 
 private fun mapRoots(tree: Tree, depth: Int, roots: List<Tree>): String =
-    (listOf("  ".repeat(depth) + "${tree.value} [index:${tree.index}, isLeaf:${tree.isLeaf}]") + roots.map { root ->
+    (listOf("  ".repeat(depth) + "${tree.value} [number:${tree.number}, isLeaf:${tree.isLeaf}]") + roots.map { root ->
         mapRoots(root, depth + 1, root.roots)
     }.filter { it.isNotBlank() })
         .joinToString("\n")
@@ -39,26 +39,26 @@ fun Tree.find(predicate: (Tree) -> Boolean): Tree? {
 fun Tree.getFirstLeaf(): Tree = find { it.isLeaf } ?: this
 
 // TODO does not work properly.
-fun Tree.set(index: Int, newTree: Tree): Tree {
-    val list = mutableListOf<Tree>()
-    if (this.index == index) {
-        list.add(Tree(index, newTree.value, newTree.isLeaf, newTree.roots))
-    } else {
-
-    }
-    return find { it.roots.isEmpty() } ?: this
-}
+//fun Tree.set(index: Int, newTree: Tree): Tree {
+////    val list = mutableListOf<Tree>()
+////    if (this.index == index) {
+////        list.add(Tree(index, newTree.value, newTree.isLeaf, newTree.roots))
+////    } else {
+////
+////    }
+////    return find { it.roots.isEmpty() } ?: this
+//}
 
 // TODO adding parentTree to this could help solve issues with root replacement
 data class Tree(
-    val index: Int,
+    val number: Int,
     val value: String,
     val isLeaf: Boolean,
     val roots: List<Tree>
 ) {
     companion object {
         fun parse(input: String): Tree {
-            var additionalIndex = 0
+            var number = 0
 
             fun simplify(tree: Tree): Tree {
                 val input = tree.value
@@ -91,7 +91,7 @@ data class Tree(
                                     treeList.add(
                                         simplify(
                                             Tree(
-                                                index = ++additionalIndex,
+                                                number = ++number,
                                                 value = substring,
                                                 isLeaf = false,
                                                 roots = emptyList()
@@ -106,7 +106,7 @@ data class Tree(
                     }
                 }
                 return Tree(
-                    index = tree.index,
+                    number = tree.number,
                     value = tree.value,
                     isLeaf = false,
                     roots = treeList
@@ -117,7 +117,7 @@ data class Tree(
 
             return simplify(
                 Tree(
-                    index = 0,
+                    number = 0,
                     value = input,
                     isLeaf = false,
                     roots = emptyList()
