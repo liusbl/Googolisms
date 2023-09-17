@@ -11,11 +11,17 @@ fun Tree.updateTree(onRoot: (Tree) -> Tree): Tree {
         onRoot(root)
         root.updateTree(onRoot)
     }
-    return Tree(newTree.number, newTree.value, newTree.isLeaf, newRoots)
+    return Tree(newTree.number, newTree.parentIndex, newTree.value, newTree.isLeaf, newRoots)
 }
 
 private fun mapRoots(tree: Tree, depth: Int, roots: List<Tree>): String =
-    (listOf("  ".repeat(depth) + "${tree.value} [number:${tree.number}, isLeaf:${tree.isLeaf}]") + roots.map { root ->
+    (listOf(
+        "  ".repeat(depth) + "${tree.value} " +
+                "[number:${tree.number}, " +
+                "isLeaf:${tree.isLeaf}, " +
+                "parentIndex: ${tree.parentIndex?.let { "${it.startIndex}|${it.endIndex}" }}" +
+                "]"
+    ) + roots.map { root ->
         mapRoots(root, depth + 1, root.roots)
     }.filter { it.isNotBlank() })
         .joinToString("\n")
@@ -50,8 +56,15 @@ fun Tree.getFirstLeaf(): Tree = find { it.isLeaf } ?: this
 //}
 
 // TODO adding parentTree to this could help solve issues with root replacement
+
+data class ParentIndex(
+    val startIndex: Int,
+    val endIndex: Int
+)
+
 data class Tree(
     val number: Int,
+    val parentIndex: ParentIndex?,
     val value: String,
     val isLeaf: Boolean,
     val roots: List<Tree>
@@ -81,6 +94,11 @@ data class Tree(
                             if (startBracketIndex != null && endBracketIndex != null) {
                                 val substring = input.substring(startBracketIndex!! + 1, endBracketIndex!!)
 
+                                val parentIndex = ParentIndex(
+                                    startIndex = startBracketIndex!! + 1,
+                                    endIndex = endBracketIndex!!
+                                )
+
                                 // Reset start/end indexes to be able to continue loop .
                                 startBracketIndex = null
                                 endBracketIndex = null
@@ -92,6 +110,7 @@ data class Tree(
                                         simplify(
                                             Tree(
                                                 number = ++number,
+                                                parentIndex = parentIndex,
                                                 value = substring,
                                                 isLeaf = false,
                                                 roots = emptyList()
@@ -107,6 +126,7 @@ data class Tree(
                 }
                 return Tree(
                     number = tree.number,
+                    parentIndex = tree.parentIndex,
                     value = tree.value,
                     isLeaf = false,
                     roots = treeList
@@ -118,6 +138,7 @@ data class Tree(
             return simplify(
                 Tree(
                     number = 0,
+                    parentIndex = null,
                     value = input,
                     isLeaf = false,
                     roots = emptyList()
@@ -128,11 +149,11 @@ data class Tree(
 }
 
 fun main() {
-    test("1 -> 2")
-    test("1 -> (2 -> 3) -> 4")
-    test("1 -> ((2 -> 3) -> 4) -> 5")
-    test("1 -> ((2 -> 3) -> 4) -> (5 -> 6)")
-    test("1 -> ((2 -> 3) -> (4 -> (5 -> 6))) -> (7 -> 8 -> 9)")
+    test("1->2")
+    test("1->(2->3)->4")
+    test("1->((2->3)->4)->5")
+    test("1->((2->3)->4)->(5->6)")
+    test("1->((2->3)->(4->(5->6)))->(7->8->9)")
 }
 
 fun test(input: String) {
