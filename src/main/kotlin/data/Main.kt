@@ -1,7 +1,5 @@
-import data.Chain
-import data.Tree
-import data.graphString
-import java.util.TreeMap
+package data
+
 import kotlin.math.pow
 
 /**
@@ -13,30 +11,41 @@ import kotlin.math.pow
  * These can be implied:
  * 1. a -> b -> c = a TT..TT b, with C T's
  * 2. # -> 1 = #
+ *
+ * TODO: is there a generalization for this?
  */
 fun main() {
-    println("Hello")
+    println("Hello. Input the chain:")
+    var input = readln()
+    println("Press Enter to advance the calculation.")
+    while (true) {
+        readln()
+        val chain = Chain(input)
+        input = chain.next().value
+        println(input)
+    }
+
 //    testNoNumbers()
 //    testOneNumber()
 //    testTwoNumbers()
 //    testChainWithOne()
 //    testChainWithOneAndNumbers()
-    testttt()
+//    testtttttt()
 }
 
 fun operate(input: String): String {
     val tree = Tree.parse(input)
     val chain = Chain(tree)
 
-    println(chain.tree.graphString())
+    println(chain.tree.value)
     println()
-    println(chain.next().tree.graphString())
+    println(chain.next().tree.value)
     println()
-    println(chain.next().next().tree.graphString())
+    println(chain.next().next().tree.value)
     println()
-    println(chain.next().next().next().tree.graphString())
+    println(chain.next().next().next().tree.value)
     println()
-    println(chain.next().next().next().next().tree.graphString())
+    println(chain.next().next().next().next().tree.value)
 
     return "aaa"
 }
@@ -80,6 +89,13 @@ fun testChainWithOneAndNumbers() {
 fun testttt() {
     test(
         input = "1->((2->3)->(4->(5->6)))->(7->8->9)",
+        expected = "2->4->5"
+    )
+}
+
+fun testtttttt() {
+    test(
+        input = "3->5->7->9",
         expected = "2->4->5"
     )
 }
