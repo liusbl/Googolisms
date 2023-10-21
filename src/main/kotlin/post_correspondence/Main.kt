@@ -38,3 +38,9 @@ fun checkPostCorrespondence(list1: List<String>, list2: List<String>, sequence: 
         println("-----------")
     }
 }
+
+//private fun combinations(size: Int): List<List<Int>> {
+//    (0 until size).forEach {
+//
+//    }
+//}
