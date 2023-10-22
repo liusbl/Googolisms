@@ -1,5 +1,7 @@
 package turing_machine
 
+// TODO better way to provide a table for turing machine. Perhaps via some txt file
+// TODO validate provided turing machine. For example you could write anything now into the tapeSymbol or writeSymbol, or nextStateSymbol.
 fun main() {
     println("Hello world")
 
@@ -55,6 +57,10 @@ fun main() {
                         nextStateName = "HALT"
                     )
                 )
+            ),
+            State(
+                stateName = "HALT",
+                rowList = emptyList()
             )
         )
     )
@@ -71,8 +77,13 @@ fun main() {
         readlnOrNull()
         iteration++
         turingMachine = turingMachine.next()
-        println("iteration: $iteration, " +
-                "${turingMachine.toDisplayString()}")
+        println(
+            "iteration: $iteration, " +
+                    "${turingMachine.toDisplayString()}"
+        )
+        if (turingMachine.headStateName == "HALT") {
+            break
+        }
     }
 }
 
@@ -84,10 +95,17 @@ data class TuringMachine( // TODO Or TuringMachineState?
     val headStateName: String
 ) {
     fun toDisplayString(): String {
+        val tapeSymbol = tape[headIndex]
+        val headState = stateTable.stateList.find { it.stateName == headStateName }!!
+//            ?: if (headStateName == "HALT") State(
+//                "HALT",
+//                emptyList()
+//            ) else error("Invalid head state name: $headStateName")
         return "headIndex: $headIndex, " +
                 "headStateName: $headStateName, " +
-                "tapeSymbol: ${tape[headIndex]}, " +
-                "tape: $tape"
+                "tapeSymbol: \"${tapeSymbol}\", " +
+                "nextMove: ${headState.rowList.find { it.tapeSymbol == tapeSymbol }?.moveTape}, " +
+                "tape: ${tape.mapIndexed { index, value -> if (index == headIndex) "->$value<-" else value }}"
     }
 }
 
@@ -104,8 +122,10 @@ fun TuringMachine.next(): TuringMachine {
             newHeadIndex = headIndex + 1
             newTape = if (newHeadIndex >= tape.size) {
                 buildList {
-                    addAll(tape)
-                    add(newTapeSymbol)
+                    addAll(tape.toMutableList().apply {
+                        set(headIndex, newTapeSymbol) // TODO probably headIndex needs to be changed
+                    })
+                    add("0")
                 }
             } else {
                 tape.toMutableList().apply {
@@ -113,12 +133,15 @@ fun TuringMachine.next(): TuringMachine {
                 }
             }
         }
+
         Direction.Left -> {
             newHeadIndex = headIndex - 1
             newTape = if (newHeadIndex < 0) {
                 buildList {
-                    add(newTapeSymbol)
-                    addAll(tape)
+                    addAll(tape.toMutableList().apply {
+                        set(headIndex, newTapeSymbol) // TODO probably headIndex needs to be changed
+                    })
+                    add(0, "0")
                 }
             } else {
                 tape.toMutableList().apply {
@@ -130,7 +153,7 @@ fun TuringMachine.next(): TuringMachine {
 
     return this.copy(
         tape = newTape,
-        headIndex = newHeadIndex,
+        headIndex = newHeadIndex.coerceAtLeast(0),
         headStateName = stateRow.nextStateName
     )
 }
