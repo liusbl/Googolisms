@@ -2,6 +2,7 @@ package turing_machine
 
 // TODO better way to provide a table for turing machine. Perhaps via some txt file
 // TODO validate provided turing machine. For example you could write anything now into the tapeSymbol or writeSymbol, or nextStateSymbol.
+// TODO permutated way to create all turing machines for given size
 fun main() {
     println("Hello world")
 
@@ -97,10 +98,6 @@ data class TuringMachine( // TODO Or TuringMachineState?
     fun toDisplayString(): String {
         val tapeSymbol = tape[headIndex]
         val headState = stateTable.stateList.find { it.stateName == headStateName }!!
-//            ?: if (headStateName == "HALT") State(
-//                "HALT",
-//                emptyList()
-//            ) else error("Invalid head state name: $headStateName")
         return "headIndex: $headIndex, " +
                 "headStateName: $headStateName, " +
                 "tapeSymbol: \"${tapeSymbol}\", " +
